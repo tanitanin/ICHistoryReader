@@ -10,6 +10,9 @@ namespace ICHistoryReader.Core.Cybernetics
         //7 (1ビット): 入出場(0=出場、1=入場) (EX-ICは常に0)
         //6〜4 (3ビット): 入出場種類(0=精算、2=SF、4=定期券)
         //3〜0 (4ビット): 入出場種類(0=通常、1=精算、2=割引、4=???)
+        public bool IsEnterance { get; set; }
+        public byte EntryType { get; set; }
+        public byte EntryType2 { get; set; }
 
         //+1 (1バイト): (不明) (定数ではなく、ビット情報の可能性もある)
         //00=通常?
@@ -17,6 +20,7 @@ namespace ICHistoryReader.Core.Cybernetics
         //08=乗継割引(バス→バス乗継割引?)
         //0C=乗継割引(電車→バス乗継割引?)
         //40=EX-IC入場?
+        public byte TransitType { get; set; }
 
         //+2〜+5 (4バイト): 改札情報(090Fと違って地域コードは存在しない)
         //鉄道
@@ -29,8 +33,14 @@ namespace ICHistoryReader.Core.Cybernetics
         //+8〜+9 (2バイト): 時刻(BCD)
         //15〜8 (8ビット): 時(BCD)
         //7〜0 (8ビット): 分(BCD)
+        public ushort StationCode { get; set; }
+        public ushort GateCode { get; set; }
+        public ushort BusCode { get; set; }
+        public ushort BusId { get; set; }
+        public DateTime DateTime { get; set; }
 
         //+A〜+B(2バイト) : 精算金額(LE)
+        public ushort Amount { get; set; }
 
         //+C〜+F(4バイト)
         //鉄道
@@ -38,5 +48,6 @@ namespace ICHistoryReader.Core.Cybernetics
         //バス
         //+C〜+D(2バイト) : (未使用 ?)
         //+E〜+F(2バイト) : 駅コード/停留所コード
+        public ushort BusStopCode { get; set; }
     }
 }
