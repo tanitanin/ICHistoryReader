@@ -131,12 +131,8 @@ namespace ICHistoryReader.ViewModels
                         // Handle Felica
                         LogMessage("Felica card detected");
                         var felicaAccess = new Felica.AccessHandler(connection);
-
-                        //var uid = await felicaAccess.GetUidAsync();
-                        //LogMessage("UID:  " + BitConverter.ToString(uid));
-
-                        // 交通系カードは共有領域ではなくプライベート領域にデータが保管されている
-                        var result = felicaAccess.ReadAsync(1, new byte[] { 0x00, 0x03 }, 1, new byte[] { 0x00, 0x8B });
+                        var cyberneticsAccess = new Cybernetics.AccessHandler(connection);
+                        var res = await cyberneticsAccess.PollingAsync(new byte[] { 0x00, 0x03 }, 0x01, 0x0F);
                     }
                     else if (cardIdentification.PcscDeviceClass == Pcsc.Common.DeviceClass.StorageClass
                         && (cardIdentification.PcscCardName == Pcsc.CardName.MifareStandard1K || cardIdentification.PcscCardName == Pcsc.CardName.MifareStandard4K))

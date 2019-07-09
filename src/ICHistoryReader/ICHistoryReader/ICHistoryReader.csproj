@@ -216,6 +216,10 @@
       <Project>{AA7964EA-1B0C-43CF-B2C8-BF334C490BA4}</Project>
       <Name>ICHistoryReader.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ICHistoryReader.Cybernetics\ICHistoryReader.Cybernetics.csproj">
+      <Project>{4f0cb9dc-2cf9-4ea8-ad21-3688182f15c5}</Project>
+      <Name>ICHistoryReader.Cybernetics</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PcscSdk\PcscSdk.csproj">
       <Project>{e8e04156-ced8-4ab1-aedb-9f9bfa205045}</Project>
       <Name>PcscSdk</Name>
