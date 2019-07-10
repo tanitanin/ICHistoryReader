@@ -132,7 +132,9 @@ namespace ICHistoryReader.ViewModels
                         LogMessage("Felica card detected");
                         var felicaAccess = new Felica.AccessHandler(connection);
                         var cyberneticsAccess = new Cybernetics.AccessHandler(connection);
-                        var res = await cyberneticsAccess.PollingAsync(new byte[] { 0x00, 0x03 }, 0x01, 0x0F);
+                        var resPolling = await cyberneticsAccess.PollingAsync(new byte[] { 0xFF, 0xFF }, 0, 3);
+                        var idm = resPolling.IDm;
+                        var resReqService = await cyberneticsAccess.RequestServiceAsync(idm, 1, new byte[] { 0xFF, 0xFF });
                     }
                     else if (cardIdentification.PcscDeviceClass == Pcsc.Common.DeviceClass.StorageClass
                         && (cardIdentification.PcscCardName == Pcsc.CardName.MifareStandard1K || cardIdentification.PcscCardName == Pcsc.CardName.MifareStandard4K))
