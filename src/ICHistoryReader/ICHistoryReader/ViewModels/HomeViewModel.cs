@@ -131,10 +131,12 @@ namespace ICHistoryReader.ViewModels
                         // Handle Felica
                         LogMessage("Felica card detected");
                         var cyberneticsAccess = new Cybernetics.AccessHandler(connection);
-                        //await cyberneticsAccess.SelectFileAsync(new byte[] { 0x00, 0x8B });
-                        //var cardType = await cyberneticsAccess.ReadBinaryAsync(0x00);
-                        //LogMessage("Card Type:  " + BitConverter.ToString(cardType));
-                        await cyberneticsAccess.SelectFileAsync(new byte[] { 0x09, 0x0F });
+                        var IDm = await cyberneticsAccess.GetUidAsync(); // ok
+                        LogMessage("IDm: " + BitConverter.ToString(IDm));
+                        await cyberneticsAccess.SelectFileAsync(new byte[] { 0x8B, 0x00 });
+                        var cardType = await cyberneticsAccess.ReadBinaryAsync(0x00);
+                        LogMessage("Card Type:  " + BitConverter.ToString(cardType));
+                        await cyberneticsAccess.SelectFileAsync(new byte[] { 0x0F, 0x09 });
                         for (byte block=0; block < 20; ++block)
                         {
                             var history = await cyberneticsAccess.ReadBinaryAsync(block);

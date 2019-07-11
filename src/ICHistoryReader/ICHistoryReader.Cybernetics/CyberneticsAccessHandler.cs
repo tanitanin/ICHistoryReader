@@ -29,6 +29,17 @@ namespace ICHistoryReader.Cybernetics
         {
             connectionObject = ScConnection;
         }
+        public async Task<byte[]> GetUidAsync()
+        {
+            var resApdu = await connectionObject.TransceiveAsync(new GetData(GetData.GetDataDataType.Uid));
+
+            if (!resApdu.Succeeded)
+            {
+                throw new Exception("Failure reading Felica card, " + resApdu.ToString());
+            }
+
+            return resApdu.ResponseData;
+        }
         public async Task SelectFileAsync(byte[] serviceCode)
         {
             if (serviceCode.Length != 2)
@@ -36,7 +47,7 @@ namespace ICHistoryReader.Cybernetics
                 throw new NotSupportedException();
             }
 
-            var resApdu = await connectionObject.TransceiveAsync(new SelectFile(serviceCode)) as SelectFileResponse;
+            var resApdu = await connectionObject.TransceiveAsync(new SelectFile(serviceCode));
 
             if (!resApdu.Succeeded)
             {
@@ -47,7 +58,7 @@ namespace ICHistoryReader.Cybernetics
         }
         public async Task<byte[]> ReadBinaryAsync(byte blockOffset)
         {
-            var resApdu = await connectionObject.TransceiveAsync(new ReadBinary(blockOffset)) as ReadBinaryResponse;
+            var resApdu = await connectionObject.TransceiveAsync(new ReadBinary(blockOffset));
 
             if (!resApdu.Succeeded)
             {
