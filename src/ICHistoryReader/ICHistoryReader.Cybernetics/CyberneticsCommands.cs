@@ -20,6 +20,43 @@ namespace ICHistoryReader.Cybernetics
         RequestService = 0x03,
         ReadWithoutEncryption = 0x07,
     }
+    public class SelectFile : Iso7816.ApduCommand
+    {
+        public SelectFile(byte[] serviceCode)
+            : base((byte)Iso7816.Cla.ReservedForPts, (byte)Iso7816.Ins.SelectFile, 0x00, 0x01, serviceCode, 0x02)
+        { }
+    }
+    public class SelectFileResponse : Iso7816.ApduResponse
+    {
+        public SelectFileResponse()
+            : base()
+        { }
+    }
+    public class ReadBinary : Iso7816.ApduCommand
+    {
+        public ReadBinary(byte blockOffset)
+            : base((byte)Iso7816.Cla.ReservedForPts, (byte)Iso7816.Ins.ReadBinary, 0x00, blockOffset, null, 0x00)
+        { }
+    }
+    public class ReadBinaryResponse : Iso7816.ApduResponse
+    {
+        public ReadBinaryResponse()
+            : base()
+        { }
+        public override bool Succeeded
+        {
+            get
+            {
+                if (base.Succeeded)
+                {
+                    if (ResponseData.Length != 16)
+                        throw new System.InvalidOperationException("Invalid value size for ICC response");
+                    return true;
+                }
+                return false;
+            }
+        }
+    }
     /// <summary>
     /// Polling command
     /// </summary>

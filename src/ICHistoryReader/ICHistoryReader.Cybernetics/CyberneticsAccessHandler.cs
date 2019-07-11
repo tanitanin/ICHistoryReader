@@ -29,6 +29,33 @@ namespace ICHistoryReader.Cybernetics
         {
             connectionObject = ScConnection;
         }
+        public async Task SelectFileAsync(byte[] serviceCode)
+        {
+            if (serviceCode.Length != 2)
+            {
+                throw new NotSupportedException();
+            }
+
+            var resApdu = await connectionObject.TransceiveAsync(new SelectFile(serviceCode)) as SelectFileResponse;
+
+            if (!resApdu.Succeeded)
+            {
+                throw new Exception("Failure reading Felica card, " + resApdu.ToString());
+            }
+
+            return;
+        }
+        public async Task<byte[]> ReadBinaryAsync(byte blockOffset)
+        {
+            var resApdu = await connectionObject.TransceiveAsync(new ReadBinary(blockOffset)) as ReadBinaryResponse;
+
+            if (!resApdu.Succeeded)
+            {
+                throw new Exception("Failure reading Felica card, " + resApdu.ToString());
+            }
+
+            return resApdu.ResponseData;
+        }
         /// <summary>
         /// Polling command
         /// </summary>

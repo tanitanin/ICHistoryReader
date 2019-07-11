@@ -130,11 +130,16 @@ namespace ICHistoryReader.ViewModels
                     {
                         // Handle Felica
                         LogMessage("Felica card detected");
-                        var felicaAccess = new Felica.AccessHandler(connection);
                         var cyberneticsAccess = new Cybernetics.AccessHandler(connection);
-                        var resPolling = await cyberneticsAccess.PollingAsync(new byte[] { 0xFF, 0xFF }, 0, 3);
-                        var idm = resPolling.IDm;
-                        var resReqService = await cyberneticsAccess.RequestServiceAsync(idm, 1, new byte[] { 0xFF, 0xFF });
+                        //await cyberneticsAccess.SelectFileAsync(new byte[] { 0x00, 0x8B });
+                        //var cardType = await cyberneticsAccess.ReadBinaryAsync(0x00);
+                        //LogMessage("Card Type:  " + BitConverter.ToString(cardType));
+                        await cyberneticsAccess.SelectFileAsync(new byte[] { 0x09, 0x0F });
+                        for (byte block=0; block < 20; ++block)
+                        {
+                            var history = await cyberneticsAccess.ReadBinaryAsync(block);
+                            LogMessage("History:  " + BitConverter.ToString(history));
+                        }
                     }
                     else if (cardIdentification.PcscDeviceClass == Pcsc.Common.DeviceClass.StorageClass
                         && (cardIdentification.PcscCardName == Pcsc.CardName.MifareStandard1K || cardIdentification.PcscCardName == Pcsc.CardName.MifareStandard4K))
