@@ -7,7 +7,7 @@ namespace ICHistoryReader.Cybernetics
     public class HistoryInfo
     {
         //+0 (1バイト): 機器種別
-        public MachineType MachineType { get; set; }
+        public byte MachineType { get; set; }
 
         //+1 (1バイト): 利用種別
         //ビット7 (1ビット): 1=現金やカード等の併用 (切符の乗り越し精算をICカードで実施した場合など)
@@ -15,13 +15,13 @@ namespace ICHistoryReader.Cybernetics
 
         //+1 (1バイト): 利用種別
         //ビット6〜0 (7ビット)
-        public UsageType UsageType { get; set; }
+        public byte UsageType { get; set; }
 
         //+2 (1バイト): 決済種別
-        public PaymentType PaymentType { get; set; }
+        public byte PaymentType { get; set; }
 
         //+3 (1バイト): 入出場種別
-        public EntryType EntryType { get; set; }
+        public byte EntryType { get; set; }
 
         //+4〜+5 (2バイト): 年月日 [年/7ビット、月/4ビット、日/5ビット]
         public DateTime Date { get; set; }
@@ -41,6 +41,7 @@ namespace ICHistoryReader.Cybernetics
         public ushort EntranceStationCode { get; set; }
         public ushort ExitStationCode { get; set; }
         public ushort StationCode { get; set; }
+        public ushort TicketMachineCode { get; set; }
         public ushort BusCode { get; set; }
         public ushort BusStopCode { get; set; }
         public DateTime PaymentTime { get; set; }
@@ -58,5 +59,58 @@ namespace ICHistoryReader.Cybernetics
         //3〜0 (4ビット): 未使用(0)
         public byte EntranceRegionCode { get; set; }
         public byte ExitRegionCode { get; set; }
+
+        public static HistoryInfo FromBytes(byte[] rawData)
+        {
+            if (rawData.Length != 16)
+            {
+                throw new NotSupportedException();
+            }
+
+            var result = null as HistoryInfo;
+            try
+            {
+                using (var stream = new System.IO.MemoryStream(rawData))
+                {
+                    using (var reader = new System.IO.BinaryReader(stream))
+                    {
+                        result = new HistoryInfo();
+                        var b0 = reader.ReadByte();
+                        result.MachineType = (byte)b0;
+                        var b1 = reader.ReadByte();
+                        result.PaymentCombined = (b1 & 0b10000000) > 0;
+                        result.UsageType = (byte)(b1 & 0b01111111);
+                        result.PaymentType = (byte)reader.ReadByte();
+                        result.EntryType = (byte)reader.ReadByte();
+                        result.Date = ByteConvert.ToDate(reader.ReadBytes(2));
+
+                        var b67 = reader.ReadUInt16();
+                        result.EntranceStationCode = result.StationCode = result.BusCode = b67;
+                        result.PaymentTime = result.Date.Add(ToPaymentTime(b67));
+                        var b89 = reader.ReadUInt16();
+                        result.ExitStationCode = result.TicketMachineCode = result.BusStopCode = b89;
+                        result.PaymentId = b89;
+
+                        result.Balance = reader.ReadUInt16();
+                        reader.ReadByte();
+                        result.HistoryNumber = reader.ReadUInt16();
+                        var bF = reader.ReadByte();
+                        result.EntranceRegionCode = (byte)((bF & 0b11000000) >> 6);
+                        result.ExitRegionCode = (byte)((bF & 0b00110000) >> 4);
+                    }
+                }
+            }
+            catch { }
+            return result;
+        }
+        private static TimeSpan ToPaymentTime(ushort data)
+        {
+            var s = (ushort)((data & 0x00FF << 8) | (data & 0xFF00 >> 8));
+            //+6〜+7 (2バイト): 決済時刻[時 / 5ビット、分 / 6ビット、秒÷2 / 5ビット]
+            var hh = (s & 0xF800) >> 11;
+            var mm = (s & 0x07E0) >> 5;
+            var ss = ((s & 0x001F) >> 0) * 2;
+            return new TimeSpan(hh, mm, ss);
+        }
     }
 }

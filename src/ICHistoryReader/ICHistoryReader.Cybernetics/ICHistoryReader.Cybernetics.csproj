@@ -120,6 +120,7 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ByteConvert.cs" />
     <Compile Include="CardInfo.cs" />
     <Compile Include="CyberneticsAccessHandler.cs" />
     <Compile Include="CyberneticsCommands.cs" />

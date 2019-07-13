@@ -6,6 +6,7 @@ using Windows.Devices.SmartCards;
 using Pcsc;
 using static ICHistoryReader.Helpers.NfcUtils;
 using Pcsc.Common;
+using System.Collections.Generic;
 
 namespace ICHistoryReader.ViewModels
 {
@@ -131,17 +132,40 @@ namespace ICHistoryReader.ViewModels
                         // Handle Felica
                         LogMessage("Felica card detected");
                         var cyberneticsAccess = new Cybernetics.AccessHandler(connection);
+                        var cardinfo = null as Cybernetics.CardInfo;
+                        var histories = new List<Cybernetics.HistoryInfo>();
+                        var gateHistories = new List<Cybernetics.GateHistoryInfo>();
+                        var sfHistory = null as Cybernetics.SFEntryInfo;
+
                         var IDm = await cyberneticsAccess.GetUidAsync(); // ok
                         LogMessage("IDm: " + BitConverter.ToString(IDm));
                         await cyberneticsAccess.SelectFileAsync(new byte[] { 0x8B, 0x00 });
-                        var cardType = await cyberneticsAccess.ReadBinaryAsync(0x00);
-                        LogMessage("Card Type:  " + BitConverter.ToString(cardType));
+                        var block008B = await cyberneticsAccess.ReadBinaryAsync(0x00);
+                        LogMessage("Card Type:  " + BitConverter.ToString(block008B));
+                        cardinfo = Cybernetics.CardInfo.FromBytes(block008B);
                         await cyberneticsAccess.SelectFileAsync(new byte[] { 0x0F, 0x09 });
                         for (byte block=0; block < 20; ++block)
                         {
-                            var history = await cyberneticsAccess.ReadBinaryAsync(block);
-                            LogMessage("History:  " + BitConverter.ToString(history));
+                            var block090F = await cyberneticsAccess.ReadBinaryAsync(block);
+                            LogMessage("History:  " + BitConverter.ToString(block090F));
+                            histories.Add(Cybernetics.HistoryInfo.FromBytes(block090F));
                         }
+                        await cyberneticsAccess.SelectFileAsync(new byte[] { 0x8F, 0x10 });
+                        for (byte block = 0; block < 3; ++block)
+                        {
+                            var block108F = await cyberneticsAccess.ReadBinaryAsync(block);
+                            LogMessage("Gate:  " + BitConverter.ToString(block108F));
+                            gateHistories.Add(Cybernetics.GateHistoryInfo.FromBytes(block108F));
+                        }
+                        await cyberneticsAccess.SelectFileAsync(new byte[] { 0xCB, 0x10 });
+                        var temp = new List<byte>();
+                        for (byte block = 0; block < 2; ++block)
+                        {
+                            var block10CB = await cyberneticsAccess.ReadBinaryAsync(block);
+                            LogMessage("SF:  " + BitConverter.ToString(block10CB));
+                            temp.AddRange(block10CB);
+                        }
+                        sfHistory = Cybernetics.SFEntryInfo.FromBytes(temp.ToArray());
                     }
                     else if (cardIdentification.PcscDeviceClass == Pcsc.Common.DeviceClass.StorageClass
                         && (cardIdentification.PcscCardName == Pcsc.CardName.MifareStandard1K || cardIdentification.PcscCardName == Pcsc.CardName.MifareStandard4K))

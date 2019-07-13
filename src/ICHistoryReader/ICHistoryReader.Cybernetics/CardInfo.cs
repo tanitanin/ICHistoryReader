@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace ICHistoryReader.Cybernetics
@@ -18,8 +19,8 @@ namespace ICHistoryReader.Cybernetics
         //1=中部私鉄/バス
         //2=関西私鉄/バス
         //3=その他地域私鉄/バス
-        public CardType CardType { get; set; }
-        public LastPaymentRegionCode LastPaymentRegionCode { get; set; }
+        public byte CardType { get; set; }
+        public byte LastPaymentRegionCode { get; set; }
 
         //+9〜+A(2バイト) : 0x00 0x00 (不明)
 
@@ -30,5 +31,35 @@ namespace ICHistoryReader.Cybernetics
 
         //+E〜+F(2バイト) : 更新番号
         public ushort UpdateNumber { get; set; }
+
+        public static CardInfo FromBytes(byte[] rawData)
+        {
+            if (rawData.Length != 16)
+            {
+                throw new NotSupportedException();
+            }
+
+            var result = null as CardInfo;
+            try
+            {
+                using (var stream = new System.IO.MemoryStream(rawData))
+                {
+                    using (var reader = new System.IO.BinaryReader(stream))
+                    {
+                        result = new CardInfo();
+                        reader.ReadBytes(8);
+                        var b8 = reader.ReadByte();
+                        result.CardType = (byte)((b8 & 0xF0) >> 4);
+                        result.LastPaymentRegionCode = (byte)(b8 & 0x0F);
+                        reader.ReadBytes(2);
+                        result.Balance = reader.ReadUInt16();
+                        reader.ReadByte();
+                        result.UpdateNumber = reader.ReadUInt16();
+                    }
+                }
+            }
+            catch { }
+            return result;
+        }
     }
 }
