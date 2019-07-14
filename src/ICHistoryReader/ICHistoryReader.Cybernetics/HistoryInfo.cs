@@ -60,6 +60,8 @@ namespace ICHistoryReader.Cybernetics
         public byte EntranceRegionCode { get; set; }
         public byte ExitRegionCode { get; set; }
 
+        public byte[] Raw { get; private set; }
+
         public static HistoryInfo FromBytes(byte[] rawData)
         {
             if (rawData.Length != 16)
@@ -75,6 +77,7 @@ namespace ICHistoryReader.Cybernetics
                     using (var reader = new System.IO.BinaryReader(stream))
                     {
                         result = new HistoryInfo();
+                        result.Raw = rawData;
                         var b0 = reader.ReadByte();
                         result.MachineType = (byte)b0;
                         var b1 = reader.ReadByte();

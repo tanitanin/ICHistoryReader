@@ -52,6 +52,7 @@ namespace ICHistoryReader.Cybernetics
         //+E〜+F(2バイト) : 駅コード/停留所コード
         public ushort BusStopCode { get; set; }
 
+        public byte[] Raw { get; private set; }
 
         public static GateHistoryInfo FromBytes(byte[] rawData)
         {
@@ -68,6 +69,7 @@ namespace ICHistoryReader.Cybernetics
                     using (var reader = new System.IO.BinaryReader(stream))
                     {
                         result = new GateHistoryInfo();
+                        result.Raw = rawData;
                         var b0 = reader.ReadByte();
                         result.IsEnterance = ((b0 & 0b10000000) > 0);
                         result.EntryType1 = (byte)((b0 & 0b01110000) >> 4);

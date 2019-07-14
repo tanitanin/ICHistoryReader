@@ -42,6 +42,8 @@ namespace ICHistoryReader.Cybernetics
         //5〜0 (6ビット): 不明(0)
         //+E〜+F(2バイト) : (不明)
 
+        public byte[] Raw { get; private set; }
+
         public static SFEntryInfo FromBytes(byte[] rawData)
         {
             if (rawData.Length != 32)
@@ -56,6 +58,7 @@ namespace ICHistoryReader.Cybernetics
                     using (var reader = new System.IO.BinaryReader(stream))
                     {
                         result = new SFEntryInfo();
+                        result.Raw = rawData;
                         result.Region1 = reader.ReadUInt16();
                         result.Region2 = reader.ReadUInt16();
                         result.Region3 = reader.ReadUInt16();

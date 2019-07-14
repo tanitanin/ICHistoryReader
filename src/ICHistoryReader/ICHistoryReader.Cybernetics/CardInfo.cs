@@ -32,6 +32,8 @@ namespace ICHistoryReader.Cybernetics
         //+E〜+F(2バイト) : 更新番号
         public ushort UpdateNumber { get; set; }
 
+        public byte[] Raw { get; private set; }
+
         public static CardInfo FromBytes(byte[] rawData)
         {
             if (rawData.Length != 16)
@@ -47,6 +49,7 @@ namespace ICHistoryReader.Cybernetics
                     using (var reader = new System.IO.BinaryReader(stream))
                     {
                         result = new CardInfo();
+                        result.Raw = rawData;
                         reader.ReadBytes(8);
                         var b8 = reader.ReadByte();
                         result.CardType = (byte)((b8 & 0xF0) >> 4);
