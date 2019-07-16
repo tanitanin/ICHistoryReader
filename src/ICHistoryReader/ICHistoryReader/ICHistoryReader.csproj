@@ -203,6 +203,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
+    <None Include="Assets\StationCode.csv" />
     <None Include="ICHistoryReader_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
