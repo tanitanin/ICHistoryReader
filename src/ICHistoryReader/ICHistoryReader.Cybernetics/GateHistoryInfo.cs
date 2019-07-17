@@ -30,7 +30,8 @@ namespace ICHistoryReader.Cybernetics
         //バス
         //+2〜+3 (2バイト): 事業者コード
         //+4〜+5 (2バイト): 車両番号等
-        public ushort StationCode { get; set; }
+        public byte LineCode { get; set; }
+        public byte StationCode { get; set; }
         public ushort GateCode { get; set; }
         public ushort BusCode { get; set; }
         public ushort BusId { get; set; }
@@ -52,6 +53,9 @@ namespace ICHistoryReader.Cybernetics
         //+E〜+F(2バイト) : 駅コード/停留所コード
         public ushort BusStopCode { get; set; }
 
+        /// <summary>
+        /// 生データ
+        /// </summary>
         public byte[] Raw { get; private set; }
 
         public static GateHistoryInfo FromBytes(byte[] rawData)
@@ -77,7 +81,9 @@ namespace ICHistoryReader.Cybernetics
                         var b1 = reader.ReadByte();
                         result.TransitType = b1;
                         var b23 = reader.ReadUInt16();
-                        result.StationCode = result.BusCode = b23;
+                        result.StationCode = (byte)((b23 & 0xFF00) >> 8);
+                        result.LineCode = (byte)(b23 & 0xFF);
+                        result.BusCode = b23;
                         var b45 = reader.ReadUInt16();
                         result.GateCode = result.BusId = b45;
                         var b6789 = reader.ReadBytes(4);

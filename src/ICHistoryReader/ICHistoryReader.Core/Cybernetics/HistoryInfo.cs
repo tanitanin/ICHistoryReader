@@ -1,5 +1,7 @@
-﻿using System;
+﻿using ICHistoryReader.Core.Models;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace ICHistoryReader.Core.Cybernetics
@@ -38,9 +40,9 @@ namespace ICHistoryReader.Core.Cybernetics
         //物販
         //+6〜+7 (2バイト): 決済時刻[時 / 5ビット、分 / 6ビット、秒÷2 / 5ビット]
         //+8〜+9 (2バイト): 決済端末のID
-        public ushort EntranceStationCode { get; set; }
-        public ushort ExitStationCode { get; set; }
-        public ushort StationCode { get; set; }
+        public StationCodeData EntranceStation { get; set; }
+        public StationCodeData ExitStation { get; set; }
+        public StationCodeData StationData { get; set; }
         public ushort BusCode { get; set; }
         public ushort BusStopCode { get; set; }
         public DateTime PaymentTime { get; set; }
@@ -49,6 +51,11 @@ namespace ICHistoryReader.Core.Cybernetics
         //+A〜+B (2バイト): 残額(LE)
         public ushort Balance { get; set; }
 
+        /// <summary>
+        /// 精算額
+        /// </summary>
+        public int Amount { get; set; }
+
         //+D〜+E (2バイト): 履歴連番
         public ushort HistoryNumber { get; set; }
 
@@ -56,7 +63,103 @@ namespace ICHistoryReader.Core.Cybernetics
         //7〜6 (2ビット): 入場地域コード
         //5〜4 (2ビット): 出場地域コード(新規やチャージでは0)
         //3〜0 (4ビット): 未使用(0)
-        public byte EntranceRegionCode { get; set; }
-        public byte ExitRegionCode { get; set; }
+        public byte RegionCode { get; set; }
+
+        byte[] Raw { get; set; }
+
+        public bool IsBus
+        {
+            get
+            {
+                switch ((byte)UsageType)
+                {
+                    case 13:
+                    case 15:
+                    case 31:
+                    case 35:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        }
+
+        public bool IsGoodSale
+        {
+            get
+            {
+                switch ((byte)UsageType + (PaymentCombined ? 0x80 : 0x00))
+                {
+                    case 70:
+                    case 73:
+                    case 74:
+                    case 75:
+                    case 198:
+                    case 203:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        }
+
+        public bool IsTrain
+        {
+            get => !IsBus && !IsGoodSale;
+        }
+
+        public bool IsCommuterPass
+        {
+            get
+            {
+                switch ((byte)EntryType)
+                {
+                    case 3:
+                    case 4:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        }
+
+        public static HistoryInfo From(ICHistoryReader.Cybernetics.HistoryInfo info, List<StationCodeData> list)
+        {
+            try
+            {
+                var result = new HistoryInfo();
+                result.Raw = info.Raw;
+                result.MachineType = Enum.IsDefined(typeof(MachineType), info.MachineType) ? (MachineType)info.MachineType : MachineType.Unknown;
+                result.PaymentCombined = info.PaymentCombined;
+                result.UsageType = Enum.IsDefined(typeof(UsageType), info.UsageType) ? (UsageType)info.UsageType : UsageType.Unknown;
+                result.PaymentType = Enum.IsDefined(typeof(PaymentType), info.PaymentType) ? (PaymentType)info.PaymentType : PaymentType.Normal;
+                result.EntryType = Enum.IsDefined(typeof(EntryType), info.EntryType) ? (EntryType)info.EntryType : EntryType.Normal;
+                result.Date = info.Date;
+                if (result.IsTrain)
+                {
+                    result.EntranceStation = list.SingleOrDefault(x => x.RegionCode == info.EntranceRegionCode && x.LineCode == info.EntranceLineCode && x.StationCode == info.EntranceStationCode);
+                    result.ExitStation = list.SingleOrDefault(x => x.RegionCode == info.ExitRegionCode && x.LineCode == info.ExitLineCode && x.StationCode == info.ExitStationCode);
+                    result.StationData = result.EntranceStation;
+                }
+                else if (result.IsBus)
+                {
+                    result.BusCode = info.BusCode;
+                    result.BusStopCode = info.BusStopCode;
+                }
+                else if (result.IsGoodSale)
+                {
+                    result.PaymentTime = info.PaymentTime;
+                    result.PaymentId = info.PaymentId;
+                }
+                result.Balance = info.Balance;
+                result.HistoryNumber = info.HistoryNumber;
+                result.RegionCode = info.EntranceRegionCode;
+                return result;
+            }
+            catch
+            {
+                return default;
+            }
+        }
     }
 }

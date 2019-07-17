@@ -33,7 +33,8 @@ namespace ICHistoryReader.Core.Cybernetics
         //+8〜+9 (2バイト): 時刻(BCD)
         //15〜8 (8ビット): 時(BCD)
         //7〜0 (8ビット): 分(BCD)
-        public ushort StationCode { get; set; }
+        public byte LineCode { get; set; }
+        public byte StationCode { get; set; }
         public ushort GateCode { get; set; }
         public ushort BusCode { get; set; }
         public ushort BusId { get; set; }

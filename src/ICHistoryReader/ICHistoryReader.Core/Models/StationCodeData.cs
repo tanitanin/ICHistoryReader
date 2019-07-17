@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,17 +13,17 @@ namespace ICHistoryReader.Core.Models
         /// <summary>
         /// 地区コード
         /// </summary>
-        public ushort RegionCode { get; private set; }
+        public byte RegionCode { get; private set; }
 
         /// <summary>
         /// 線区コード
         /// </summary>
-        public ushort LineCode { get; private set; }
+        public byte LineCode { get; private set; }
 
         /// <summary>
         /// 駅順コード
         /// </summary>
-        public ushort StationCode { get; private set; }
+        public byte StationCode { get; private set; }
 
         /// <summary>
         /// 会社名
@@ -72,11 +73,14 @@ namespace ICHistoryReader.Core.Models
                         var token = line.Split(new char[] { ',' }, StringSplitOptions.None);
                         try
                         {
+                            var ac = byte.Parse(token[0]);
+                            var lc = byte.Parse(token[1], System.Globalization.NumberStyles.HexNumber);
+                            var sc = byte.Parse(token[2], System.Globalization.NumberStyles.HexNumber);
                             list.Add(new StationCodeData()
                             {
-                                RegionCode = ushort.TryParse(token[0], out var rc) ? rc : (ushort)0,
-                                LineCode = ushort.TryParse(token[1], System.Globalization.NumberStyles.HexNumber, null, out var lc) ? lc : (ushort)0,
-                                StationCode = ushort.TryParse(token[2], System.Globalization.NumberStyles.HexNumber, null, out var sc) ? sc : (ushort)0,
+                                RegionCode = ac,
+                                LineCode = lc,
+                                StationCode = sc,
                                 CompanyName = token[3],
                                 LineName = token[4],
                                 StationName = token[5],

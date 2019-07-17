@@ -10,4 +10,8 @@
      <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
      <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
    </ItemGroup>
+
+   <ItemGroup>
+     <ProjectReference Include="..\ICHistoryReader.Cybernetics\ICHistoryReader.Cybernetics.csproj" />
+   </ItemGroup>
 </Project>

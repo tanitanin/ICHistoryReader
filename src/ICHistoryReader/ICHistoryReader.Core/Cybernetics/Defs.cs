@@ -8,16 +8,23 @@ namespace ICHistoryReader.Core.Cybernetics
     public enum CardType
     {
         //0=EX-IC
+        ExIC = 0x00,
         //2=Suica、PASMO、TOICA、manaca、PiTaPa、nimoca、SUGOCA、はやかけん
+        IC = 0x02,
         //3=ICOCA
+        ICOCA = 0x03,
     }
 
     public enum LastPaymentRegionCode
     {
         //0=旧国鉄と関東私鉄/バス
+        General = 0x00,
         //1=中部私鉄/バス
+        CentralPrivate = 0x01,
         //2=関西私鉄/バス
+        WestPrivate = 0x02,
         //3=その他地域私鉄/バス
+        Etc = 0x03,
     }
 
     public enum MachineType : byte
@@ -53,6 +60,7 @@ namespace ICHistoryReader.Core.Cybernetics
 
     public enum UsageType : byte
     {
+        Unknown = 0x00,
         //01 自動改札機出場/有人改札出場
         //02 SFチャージ
         //03 乗車券類購入
@@ -85,6 +93,7 @@ namespace ICHistoryReader.Core.Cybernetics
     public enum PaymentType : byte
     {
         //00 通常決済
+        Normal = 0x00,
         //02 VIEWカード
         //0B PiTaPa (物販等)
         //0C 一般のクレジットカード?
@@ -97,6 +106,7 @@ namespace ICHistoryReader.Core.Cybernetics
     public enum EntryType : byte
     {
         //00 通常出場および精算以外(新規、チャージ、乗車券類購入、物販等)
+        Normal = 0x00,
         //01 入場(オートチャージ)
         //02 入場+出場(SF)
         //03 定期入場→乗り越し精算出場(SF)
@@ -109,4 +119,5 @@ namespace ICHistoryReader.Core.Cybernetics
         //21 乗継精算(筑豊電鉄 指定駅乗継、熊本市交通局 辛島町電停 A系統↔B系統など)
         //22 券面外乗降?
     }
+
 }

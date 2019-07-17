@@ -38,9 +38,12 @@ namespace ICHistoryReader.Cybernetics
         //物販
         //+6〜+7 (2バイト): 決済時刻[時 / 5ビット、分 / 6ビット、秒÷2 / 5ビット]
         //+8〜+9 (2バイト): 決済端末のID
-        public ushort EntranceStationCode { get; set; }
-        public ushort ExitStationCode { get; set; }
-        public ushort StationCode { get; set; }
+        public byte EntranceLineCode { get; set; }
+        public byte EntranceStationCode { get; set; }
+        public byte ExitLineCode { get; set; }
+        public byte ExitStationCode { get; set; }
+        public byte LineCode { get; set; }
+        public byte StationCode { get; set; }
         public ushort TicketMachineCode { get; set; }
         public ushort BusCode { get; set; }
         public ushort BusStopCode { get; set; }
@@ -60,7 +63,78 @@ namespace ICHistoryReader.Cybernetics
         public byte EntranceRegionCode { get; set; }
         public byte ExitRegionCode { get; set; }
 
+        /// <summary>
+        /// 生データ
+        /// </summary>
         public byte[] Raw { get; private set; }
+
+        /// <summary>
+        /// バスかどうか
+        /// </summary>
+        public bool IsBus
+        {
+            get
+            {
+                switch(UsageType)
+                {
+                    case 13:
+                    case 15:
+                    case 31:
+                    case 35:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 物販かどうか
+        /// </summary>
+        public bool IsGoodSale
+        {
+            get
+            {
+                switch (UsageType + (PaymentCombined ? 0x80 : 0x00))
+                {
+                    case 70:
+                    case 73:
+                    case 74:
+                    case 75:
+                    case 198:
+                    case 203:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 電車かどうか
+        /// </summary>
+        public bool IsTrain
+        {
+            get => !IsBus && !IsGoodSale;
+        }
+
+        /// <summary>
+        /// 定期券入出場かどうか
+        /// </summary>
+        public bool IsCommuterPass
+        {
+            get
+            {
+                switch (EntryType)
+                {
+                    case 3:
+                    case 4:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        }
 
         public static HistoryInfo FromBytes(byte[] rawData)
         {
@@ -88,10 +162,14 @@ namespace ICHistoryReader.Cybernetics
                         result.Date = ByteConvert.ToDate(reader.ReadBytes(2));
 
                         var b67 = reader.ReadUInt16();
-                        result.EntranceStationCode = result.StationCode = result.BusCode = b67;
+                        result.EntranceStationCode = result.StationCode = (byte)((b67 & 0xFF00) >> 8);
+                        result.EntranceLineCode = result.LineCode = (byte)(b67 & 0xFF);
+                        result.BusCode = b67;
                         result.PaymentTime = result.Date.Add(ToPaymentTime(b67));
                         var b89 = reader.ReadUInt16();
-                        result.ExitStationCode = result.TicketMachineCode = result.BusStopCode = b89;
+                        result.ExitStationCode = result.StationCode = (byte)((b89 & 0xFF00) >> 8);
+                        result.ExitLineCode = result.LineCode = (byte)(b89 & 0xFF);
+                        result.TicketMachineCode = result.BusStopCode = b89;
                         result.PaymentId = b89;
 
                         result.Balance = reader.ReadUInt16();

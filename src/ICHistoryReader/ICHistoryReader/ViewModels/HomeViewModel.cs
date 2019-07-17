@@ -155,6 +155,19 @@ namespace ICHistoryReader.ViewModels
                             LogMessage("History:  " + BitConverter.ToString(block090F));
                             histories.Add(Cybernetics.HistoryInfo.FromBytes(block090F));
                         }
+                        var histList = new List<ICHistoryReader.Core.Cybernetics.HistoryInfo>();
+                        var prevHist = null as ICHistoryReader.Core.Cybernetics.HistoryInfo;
+                        foreach (var hist in histories)
+                        {
+                            var h = ICHistoryReader.Core.Cybernetics.HistoryInfo.From(hist, m_stationCodeList);
+                            histList.Add(h);
+                            if (prevHist != null)
+                            {
+                                // 前の履歴から精算額を計算
+                                prevHist.Amount = h.Balance - prevHist.Balance;
+                            }
+                            prevHist = h;
+                        }
                         await cyberneticsAccess.SelectFileAsync(new byte[] { 0x8F, 0x10 });
                         for (byte block = 0; block < 3; ++block)
                         {
