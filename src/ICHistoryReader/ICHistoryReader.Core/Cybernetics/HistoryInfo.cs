@@ -133,7 +133,7 @@ namespace ICHistoryReader.Core.Cybernetics
                 result.PaymentCombined = info.PaymentCombined;
                 result.UsageType = Enum.IsDefined(typeof(UsageType), info.UsageType) ? (UsageType)info.UsageType : UsageType.Unknown;
                 result.PaymentType = Enum.IsDefined(typeof(PaymentType), info.PaymentType) ? (PaymentType)info.PaymentType : PaymentType.Normal;
-                result.EntryType = Enum.IsDefined(typeof(EntryType), info.EntryType) ? (EntryType)info.EntryType : EntryType.Normal;
+                result.EntryType = Enum.IsDefined(typeof(EntryType), info.EntryType) ? (EntryType)info.EntryType : EntryType.NormalPay;
                 result.Date = info.Date;
                 if (result.IsTrain)
                 {
