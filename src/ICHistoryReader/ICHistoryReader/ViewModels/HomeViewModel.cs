@@ -168,6 +168,7 @@ namespace ICHistoryReader.ViewModels
                             }
                             prevHist = h;
                         }
+                        histList = histList.SkipLast(1).ToList();
                         await cyberneticsAccess.SelectFileAsync(new byte[] { 0x8F, 0x10 });
                         for (byte block = 0; block < 3; ++block)
                         {

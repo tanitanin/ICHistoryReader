@@ -141,12 +141,12 @@ namespace ICHistoryReader.Core.Cybernetics
                     result.ExitStation = list.SingleOrDefault(x => x.RegionCode == info.ExitRegionCode && x.LineCode == info.ExitLineCode && x.StationCode == info.ExitStationCode);
                     result.StationData = result.EntranceStation;
                 }
-                else if (result.IsBus)
+                if (result.IsBus)
                 {
                     result.BusCode = info.BusCode;
                     result.BusStopCode = info.BusStopCode;
                 }
-                else if (result.IsGoodSale)
+                if (result.IsGoodSale)
                 {
                     result.PaymentTime = info.PaymentTime;
                     result.PaymentId = info.PaymentId;
