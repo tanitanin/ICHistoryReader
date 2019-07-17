@@ -16,6 +16,8 @@ namespace ICHistoryReader.ViewModels
 
         private SmartCardReader m_cardReader;
 
+        private List<Core.Models.StationCodeData> m_stationCodeList;
+
         #endregion
 
         public HomeViewModel()
@@ -55,6 +57,9 @@ namespace ICHistoryReader.ViewModels
                 m_cardReader.CardAdded += cardReader_CardAdded;
                 m_cardReader.CardRemoved += cardReader_CardRemoved;
             }
+
+            var path = Windows.ApplicationModel.Package.Current.InstalledLocation.Path + @"\Data\StationCode.csv";
+            m_stationCodeList = await Core.Models.StationCodeData.LoadAsync(path);
         }
 
         public async Task UninitializeAsync()

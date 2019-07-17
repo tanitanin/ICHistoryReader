@@ -203,7 +203,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
-    <None Include="Assets\StationCode.csv" />
+    <Content Include="Data\StationCode.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="ICHistoryReader_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
